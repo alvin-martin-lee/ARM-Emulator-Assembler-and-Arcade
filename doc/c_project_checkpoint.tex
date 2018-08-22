@@ -1,0 +1,87 @@
+% LaTeX coursework template with basic instructions and macros
+%
+% Edited: 2016-10-03 (Marc Deisenroth)
+%
+% you can compile with
+%    pdflatex coursework.tex
+%
+
+
+\documentclass[11pt,twoside]{article}
+
+\newcommand{\reporttitle}{Eigenvalues}
+\newcommand{\reportauthor}{Matthew Pull}
+\newcommand{\reporttype}{Mathematical Methods Coursework}
+\newcommand{\cid}{01201299}
+
+% include files that load packages and define macros
+\input{includes} % various packages
+\input{notation} % short-hand notation
+\usepackage{blkarray}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% front page
+\setcounter{secnumdepth}{0}
+\usepackage[T1]{fontenc}
+\usepackage{titling}
+\setlength{\droptitle}{-6em}   % This is your set screw
+\title{ARM11 Project - Checkpoint Report}
+\date{1st June, 2018}
+\author{Matthew Pull, Alvin Lee, Ho Long Fung, Christopher Huang}
+\begin{document}
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% Main document
+
+
+\section{Group Organisation}
+Our approach to this project is to divide the group into two sub teams. One subteam (Matthew and Alvin) would work on Part I - Emulator. The other subteam (Ho Long and Christopher) would work on Part II - Assembler. This plan allowed us to program the Emulator and Assembler concurrently.
+\\\\
+Each subteam met and further planned the structure of their assigned part, as well as the overall structure of the project. This included defining potential functions and the data types needed. We created a shared Google Drive folder in which we created several useful documents. One such document outlined internal deadlines that we set as a group. For each of the four parts of the project, we made summary notes about what we would need to implement. From these documents, tasks were assigned and tracked. We also split the main Git repository into "emulate" and "assembler" branchs to help organise our development.
+\\\\
+Within the subteams, after independently formulating solutions to the tasks, we met frequently to debug our programs. This process involved running the given test suite and performing additional tests for edge cases. Having fresh eyes look at an implementation helped to spot several syntactical and logical errors. Explaining our sections of code to each other also helped to uncover flaws or potential optimisations.  
+\\\\
+The group is working very well. This is evident by the completion of the emulator which passes all test cases. Good progress has also been made on the assembler, with most of the necessary helper functions (such as for parsing strings and bitwise operations) completed and organized into separate source files. We are all active on our group messaging platform and available to ask each other for advice. This will be especially useful when we look at Parts III and IV, as we will all be working on the same programs. 
+
+
+\section{Implementation Strategies}
+\subsection{Emulator Structure}
+The emulator contains the following C files as well as the associated header (.h) files:
+\begin{itemize}
+\item emulate.c - Contains the main function coordinates the emulation of the Raspberry Pi.
+\end{itemize}
+
+We also created a "utils" folder with the following files (with corresponding headers):
+\begin{itemize}
+\item decode.c - Converts a raw instruction to an decoded instruction struct via bit masking.
+\item helper.c - Contains commonly used functions: swap\textunderscore endian (swaps the endianness of a 32-bit integer), check\textunderscore cond (identifies if a given instruction should be executed, based on the CPSR register), apply\textunderscore shift (performs various shift operations) and fill\textunderscore pipeline (fills the fetch-decode-execute pipeline immediately instead of requiring three cycles).
+\item execute\textunderscore dp.c - Executes a given data processing instruction.
+\item execute\textunderscore branch.c - Performs branching of +/- 32 MiB.
+\item execute\textunderscore sdt.c - Allows for single data transfers used to load/store data from memory.
+\item execute\textunderscore mult.c - Contains the multiply and multiply-accumulate operations.
+\end{itemize}
+
+We also defined the following header files with global constants and structs:
+
+\begin{itemize}
+\item instructions.h - Defines the enumeration of the five supported instruction types: HALT, (Data) PROCESSING, MULTIPLY, (Single Data) TRANSFER and BRANCH. The struct representing a decoded instruction is also defined, which holds the values of the different instruction parts (e.g. Condition field, Destination register etc).    
+
+\item emulator\textunderscore machine\textunderscore details.h - This defines the constants of the emulated Raspberry Pi e.g. MEMORY\textunderscore ADDRESSES. A struct has also been defined to store the state of the machine, which consists of the memory array, register array, current instructions stored in each of three stages of the pipeline.
+\end{itemize}
+
+\subsection{Assembler Implementation}
+In our implementation of the assembler, we will be able to reuse much of the binary file I/O code created for the emulator, as the assembler also processes binary files. Many of the constants and structures defined in instructions.h and emulator\textunderscore machine\textunderscore details are the same for the assembler and so can also be used. The methodology used to produce the emulator is being continued with the production of the assembler - i.e. there is a main assembler.c file which coordinates with helper functions found in utility files.
+
+\subsection{Future Challenges \& Mitigation Techniques}
+The symbol table implementation and the first-pass of the assembler were relatively straightforward, so the main difficulties are in the second-pass. For instance, parsing Operand2 and encoding constants to ARM immediate values requires some care. Encoding the LDR instruction with an immediate-value parameter was relatively difficult, because it writes values to the end of the file, while other instructions do not require this. The string parsing operations were tricky to get correct, especially due to pointer manipulation and memory leakage issues. We handled this by running tests through Valgrind and fixing the uncovered errors with free() operations.There are also some general design issues such as avoiding code repetition and improving readability. Attempts have already been made to address them, such as replacing repetitive bitwise operations with helper functions with meaningful names and organizing code into separate files for better modularity, but more work can be done.
+\\\\
+In our extension we intend to create a retro arcade machine. Many retro arcade games were originally written in C or bare metal assembly. We intend to build a physical housing using the IC Hackspace facilities (half of our team are active members and have experience building physical props). We are currently planning a DoC-themed Super Mario Bros. This "ambitious" project will require a great deal of work. However, our quick progress on Parts I and II means that we should have time to fully flesh out and implement this extension. We will break down the tasks needed to complete this and assign accordingly based on the strengths of each team member.
+
+
+\end{document}
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

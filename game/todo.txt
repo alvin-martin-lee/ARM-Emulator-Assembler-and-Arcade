@@ -1,0 +1,7 @@
+Todo:
+
+Jumping
+Misc physics - velocity
+Custom graphics
+Story
+Level design
